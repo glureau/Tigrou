@@ -14,7 +14,8 @@ data class Study(
 data class Site(
     val baseUrl: String,
 ) {
-    val urls: MutableList<InternalUrl> = mutableListOf()
+    var urls: List<InternalUrl> = emptyList()
+//    val urls: MutableList<InternalUrl> = mutableListOf()
 }
 
 data class InternalUrl(

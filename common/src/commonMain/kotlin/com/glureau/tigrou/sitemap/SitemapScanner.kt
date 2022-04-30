@@ -16,21 +16,28 @@ class SitemapScanner(
     suspend fun scan(baseUrl: String): List<String> {
         try {
             val sitemapIndex = deserializer.parseSitemapIndex(download("$baseUrl/sitemap_index.xml"))
-            return sitemapIndex.sitemaps.map { it.loc }
+            return sitemapIndex.sitemaps.flatMap { scanSitemap(it.loc) }
         } catch (t: Throwable) {
-            println("[$baseUrl] - No sitemap_index.xml - ${t.message}")
+            println("[$baseUrl] - No sitemap_index.xml - $t")
+            t.printStackTrace()
         }
 
+        // If there is no sitemap index, it's possible that only one sitemap.xml is available:
         try {
-            val sitemapXml = download("$baseUrl/sitemap.xml")
-            val urlSet = deserializer.parseUrlSet(sitemapXml)
-            return urlSet.url.map { it.loc }
+            return scanSitemap("$baseUrl/sitemap.xml")
         } catch (t: Throwable) {
-            println("[$baseUrl] - No sitemap.xml - ${t.message}")
+            println("[$baseUrl] - No sitemap.xml - $t")
+            t.printStackTrace()
         }
 
         println("[$baseUrl] - Cannot scan this site...")
         return emptyList()
+    }
+
+    private suspend fun scanSitemap(url: String): List<String> {
+        val sitemapXml = download(url)
+        val urlSet = deserializer.parseUrlSet(sitemapXml)
+        return urlSet.url.map { it.loc }
     }
 
     private suspend fun download(url: String): String {

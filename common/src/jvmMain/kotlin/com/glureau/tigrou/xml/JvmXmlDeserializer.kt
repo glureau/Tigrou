@@ -38,19 +38,19 @@ class JvmXmlDeserializer : XmlDeserializer {
         doc.documentElement.getElementsByTagName("url").forEach { url ->
             val images = url.childNodes.filter { it.nodeName == "image:image" }.map { img ->
                 SitemapImage(
-                    loc = img.childNodes.filterName("loc")!!.textContent,
-                    title = img.childNodes.filterName("title")!!.textContent,
-                    geo_location = img.childNodes.filterName("geo_location")!!.textContent,
-                    caption = img.childNodes.filterName("caption")!!.textContent,
-                    license = img.childNodes.filterName("license")!!.textContent,
+                    loc = img.childNodes.filterName("image:loc")!!.textContent,
+                    title = img.childNodes.filterName("image:title")?.textContent,
+                    geo_location = img.childNodes.filterName("geo_location")?.textContent,
+                    caption = img.childNodes.filterName("caption")?.textContent,
+                    license = img.childNodes.filterName("license")?.textContent,
                 )
             }
             urls.add(
                 SitemapUrl(
                     loc = url.childNodes.filterName("loc")!!.textContent,
-                    lastmod = url.childNodes.filterName("lastmod")!!.textContent,
-                    changefreq = url.childNodes.filterName("changefreq")!!.textContent,
-                    priority = url.childNodes.filterName("priority")!!.textContent,
+                    lastmod = url.childNodes.filterName("lastmod")?.textContent,
+                    changefreq = url.childNodes.filterName("changefreq")?.textContent,
+                    priority = url.childNodes.filterName("priority")?.textContent,
                     image = images,
                 )
             )
@@ -78,9 +78,8 @@ class JvmXmlDeserializer : XmlDeserializer {
     }
 
     private fun NodeList.forEach(block: (node: Node) -> Unit) {
-        val count = this.length
         for (i in 0 until this.length) {
-            block(this.item(i))
+            this.item(i)?.let(block)
         }
     }
 }
