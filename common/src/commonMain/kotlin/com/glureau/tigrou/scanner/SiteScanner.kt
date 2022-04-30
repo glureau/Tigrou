@@ -1,20 +1,31 @@
 package com.glureau.tigrou.scanner
 
-import com.glureau.tigrou.domain.InternalUrl
 import com.glureau.tigrou.domain.Site
 import com.glureau.tigrou.sitemap.SitemapScanner
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 class SiteScanner {
     private val sitemapScanner = SitemapScanner()
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     suspend fun scan(baseUrl: String): Site {
-        val allUrls = sitemapScanner.scan(baseUrl)
+        val site = Site(baseUrl)
 
-        println(allUrls)
+        coroutineScope.launch {
+            sitemapScanner.scan(site)
+        }
         //val downloaded = HtmlDownloader().download(allUrls)
         // downloaded.size != allUrls -> Cannot finish the work (probably blocked by security) will be retried later...
-        return Site(baseUrl).apply {
-            urls = allUrls.map { InternalUrl(it) }
+        return site
+    }
+
+
+    suspend fun updateSite(site: Site) {
+        coroutineScope.launch {
+            sitemapScanner.scan(site)
         }
     }
 }

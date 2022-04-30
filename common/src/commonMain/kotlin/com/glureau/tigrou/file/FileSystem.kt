@@ -10,6 +10,8 @@ expect fun fileSeparator(): String
 
 private fun appDir() = userPath() + fileSeparator() + ".Tigrou"
 private fun Study.study() = appDir() + fileSeparator() + "studies" + fileSeparator() + studyName
+fun readStudyConf() = readFile(appDir() + fileSeparator() + "study_0.json")
+fun writeStudyConf(content: String) = writeFile(appDir() + fileSeparator() + "study_0.json", content)
 
 private fun Study.links() = study() + fileSeparator() + "links.txt"
 fun Study.readLinks() = readFile(links())

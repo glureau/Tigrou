@@ -20,8 +20,7 @@ kotlin {
                 api("io.ktor:ktor-client-core:2.0.1")
                 api("io.ktor:ktor-client-cio:2.0.1")
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
-                implementation("io.github.pdvrieze.xmlutil:core:0.84.1")
-                implementation("io.github.pdvrieze.xmlutil:serialization:0.84.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
             }
         }
         commonTest {
@@ -35,5 +34,11 @@ kotlin {
                 implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.84.1")
             }
         }
+    }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    kotlinOptions {
+        freeCompilerArgs = freeCompilerArgs
     }
 }

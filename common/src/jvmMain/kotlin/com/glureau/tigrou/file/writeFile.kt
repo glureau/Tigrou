@@ -11,10 +11,10 @@ actual fun writeFile(path: String, content: String) {
 
 actual fun readFile(path: String): String? {
     val file = File(path)
-    if (file.exists()) return null
+    if (!file.exists()) return null
     return file.readText()
 }
 
-actual fun userPath(): String = System.getProperty("user.dir")
+actual fun userPath(): String = System.getProperty("user.dir") // ou "user.home" for global/shared setup?
 
 actual fun fileSeparator(): String = File.separator

@@ -1,21 +1,36 @@
 package com.glureau.tigrou.domain
 
-import kotlin.random.Random
+import com.glureau.tigrou.sitemap.SitemapIndex
+import com.glureau.tigrou.sitemap.SitemapUrlSet
+import kotlinx.serialization.Serializable
 
-data class Settings(
-    val ignoredWords: MutableList<String> = mutableListOf()
-)
+fun interface UpdateListener {
+    suspend fun onUpdate()
+}
 
+abstract class Listenable {
+    var listener: UpdateListener? = null
+    suspend fun notifyUpdate() {
+        listener?.onUpdate()
+    }
+}
+
+@Serializable
 data class Study(
-    var studyName: String = "study_" + Random.nextInt().toString(32),
-    val sites: MutableList<Site> = mutableListOf()
-)
+    //var studyName: String = "study_" + Random.nextInt().toString(32),
+    var studyName: String = "study_0",
+    val sites: MutableList<Site> = mutableListOf(),
+    val ignoredWords: MutableList<String> = mutableListOf(),
+) : Listenable()
 
+@Serializable
 data class Site(
     val baseUrl: String,
-) {
-    var urls: List<InternalUrl> = emptyList()
-//    val urls: MutableList<InternalUrl> = mutableListOf()
+) : Listenable() {
+    var sitemapIndex: SitemapIndex? = null
+
+    // If no index only! see [SitemapIndex.urlSets]
+    var sitemapUrlSet: SitemapUrlSet? = null
 }
 
 data class InternalUrl(

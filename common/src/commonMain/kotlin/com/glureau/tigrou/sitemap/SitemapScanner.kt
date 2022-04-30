@@ -1,5 +1,6 @@
 package com.glureau.tigrou.sitemap
 
+import com.glureau.tigrou.domain.Site
 import com.glureau.tigrou.xml.XmlDeserializer
 import com.glureau.tigrou.xml.provideXmlDeserializer
 import io.ktor.client.HttpClient
@@ -13,31 +14,43 @@ class SitemapScanner(
 
     private val client = HttpClient()
 
-    suspend fun scan(baseUrl: String): List<String> {
+    suspend fun scan(site: Site) {
         try {
-            val sitemapIndex = deserializer.parseSitemapIndex(download("$baseUrl/sitemap_index.xml"))
-            return sitemapIndex.sitemaps.flatMap { scanSitemap(it.loc) }
+            if (site.sitemapIndex == null) {
+                val sitemapIndex = deserializer.parseSitemapIndex(download("${site.baseUrl}/sitemap_index.xml"))
+                site.sitemapIndex = sitemapIndex
+                site.notifyUpdate()
+            }
+            site.sitemapIndex!!.sitemaps.forEach {
+                if (it.urlSet == null) {
+                    it.urlSet = scanSitemap(it.loc)
+                    site.notifyUpdate()
+                }
+            }
+            return
         } catch (t: Throwable) {
-            println("[$baseUrl] - No sitemap_index.xml - $t")
+            println("[${site.baseUrl}] - No sitemap_index.xml - $t")
             t.printStackTrace()
         }
 
         // If there is no sitemap index, it's possible that only one sitemap.xml is available:
         try {
-            return scanSitemap("$baseUrl/sitemap.xml")
+            site.sitemapUrlSet = scanSitemap("${site.baseUrl}/sitemap.xml")
+            site.notifyUpdate()
+            return
         } catch (t: Throwable) {
-            println("[$baseUrl] - No sitemap.xml - $t")
+            println("[${site.baseUrl}] - No sitemap.xml - $t")
             t.printStackTrace()
         }
 
-        println("[$baseUrl] - Cannot scan this site...")
-        return emptyList()
+        println("[${site.baseUrl}] - Cannot scan this site...")
     }
 
-    private suspend fun scanSitemap(url: String): List<String> {
+    private suspend fun scanSitemap(url: String): SitemapUrlSet {
         val sitemapXml = download(url)
-        val urlSet = deserializer.parseUrlSet(sitemapXml)
-        return urlSet.url.map { it.loc }
+        return deserializer.parseUrlSet(sitemapXml).also {
+            println(it)
+        }
     }
 
     private suspend fun download(url: String): String {
