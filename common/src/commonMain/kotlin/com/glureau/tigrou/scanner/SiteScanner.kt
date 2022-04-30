@@ -9,6 +9,7 @@ class SiteScanner {
     suspend fun scan(baseUrl: String): Site {
         val allUrls = sitemapScanner.scan(baseUrl)
 
+        println(allUrls)
         TODO()
         //val downloaded = HtmlDownloader().download(allUrls)
         // downloaded.size != allUrls -> Cannot finish the work (probably blocked by security) will be retried later...

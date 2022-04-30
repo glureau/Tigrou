@@ -20,7 +20,7 @@ fun App() {
     Button(onClick = {
         text = "Hello World"
         coroutineScope.launch {
-            SiteScanner().scan("")
+            SiteScanner().scan("https://www.parcduluberon.fr/")
         }
     }) {
         Text(text)
