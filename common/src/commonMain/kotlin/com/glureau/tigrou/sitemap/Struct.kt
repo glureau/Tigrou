@@ -20,9 +20,7 @@ data class Sitemap(
 @Serializable
 data class SitemapUrlSet(
     val urls: List<SitemapUrl>
-) {
-    var enabled: Boolean = true
-}
+)
 
 @Serializable
 data class SitemapUrl(
