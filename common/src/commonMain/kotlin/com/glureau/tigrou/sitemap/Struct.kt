@@ -32,6 +32,7 @@ data class SitemapUrl(
 ) {
     var enabled: Boolean = true
     var htmlContentPath: String? = null
+    var markdownContentPath: String? = null
 }
 
 

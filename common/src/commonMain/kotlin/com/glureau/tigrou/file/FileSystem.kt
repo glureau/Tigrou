@@ -16,9 +16,19 @@ fun writeStudyConf(content: String) = writeFile(appDir() + fileSeparator() + "st
 private fun urlToFile(url: String) = url.substringAfter("http://").substringAfter("https://").replace("/", "_")
 
 private fun Study.htmlDir() = study() + fileSeparator() + "html"
-fun Study.readHtml(url: String) = readFile(htmlDir() + fileSeparator() + urlToFile(url) + ".html")
+private fun Study.htmlFile(url: String) = htmlDir() + fileSeparator() + urlToFile(url) + ".html"
+fun Study.readHtml(url: String) = readFile(htmlFile(url))
 fun Study.writeHtml(url: String, content: String): String {
-    val path = htmlDir() + fileSeparator() + urlToFile(url) + ".html"
+    val path = htmlFile(url)
+    writeFile(path, content)
+    return path
+}
+
+private fun Study.markdownDir() = study() + fileSeparator() + "markdown"
+private fun Study.markdownFile(url: String) = markdownDir() + fileSeparator() + urlToFile(url) + ".md"
+fun Study.readMarkdown(url: String) = readFile(markdownFile(url))
+fun Study.writeMarkdown(url: String, content: String): String {
+    val path = markdownFile(url)
     writeFile(path, content)
     return path
 }

@@ -2,10 +2,13 @@ package com.glureau.tigrou.study
 
 import com.glureau.tigrou.domain.Study
 import com.glureau.tigrou.domain.UpdateListener
+import com.glureau.tigrou.file.readFile
 import com.glureau.tigrou.file.readStudyConf
 import com.glureau.tigrou.file.writeHtml
+import com.glureau.tigrou.file.writeMarkdown
 import com.glureau.tigrou.file.writeStudyConf
 import com.glureau.tigrou.htmldownload.HtmlDownloader
+import com.glureau.tigrou.markdown.HtmlToMarkdownParser
 import com.glureau.tigrou.scanner.SiteScanner
 import com.glureau.tigrou.sitemap.SitemapUrl
 import kotlinx.coroutines.CoroutineScope
@@ -32,15 +35,17 @@ class StudyRepository : UpdateListener {
     private val _progressFlow = MutableStateFlow(0 to 0)
     val progressFlow: Flow<Pair<Int, Int>> get() = _progressFlow
 
+    private val json = Json {
+        ignoreUnknownKeys = true
+    }
+
     init {
         val studyJson = readStudyConf()
         study = if (studyJson == null) {
             Study()
         } else {
             try {
-                Json {
-                    ignoreUnknownKeys = true
-                }.decodeFromString(studyJson)
+                json.decodeFromString(studyJson)
             } catch (t: Throwable) {
                 println("Cannot restore previous study!")
                 t.printStackTrace()
@@ -58,6 +63,11 @@ class StudyRepository : UpdateListener {
             study.sites.forEach {
                 SiteScanner().updateSite(it)
             }
+
+            studySitemapUrl().forEach { sitemapUrl: SitemapUrl ->
+                study.updateMarkdown(sitemapUrl)
+            }
+            onUpdate()
         }
     }
 
@@ -83,6 +93,7 @@ class StudyRepository : UpdateListener {
                 val res = downloader.download(sitemapUrl.loc)
                 if (res.isSuccess) {
                     sitemapUrl.htmlContentPath = study.writeHtml(sitemapUrl.loc, res.getOrThrow())
+                    study.updateMarkdown(sitemapUrl)
                     onUpdate()
                 } else {
                     res.exceptionOrNull()?.printStackTrace()
@@ -114,4 +125,34 @@ class StudyRepository : UpdateListener {
         study.sites.removeAll { it.baseUrl == baseUrl }
         onUpdate()
     }
+
+    private fun Study.updateMarkdown(sitemapUrl: SitemapUrl) {
+        if (sitemapUrl.markdownContentPath != null) return
+        val htmlContentPath = sitemapUrl.htmlContentPath
+        if (htmlContentPath != null) {
+            val htmlContent = readFile(htmlContentPath)
+            if (htmlContent == null) {
+                sitemapUrl.htmlContentPath = null
+            } else {
+                val md = htmlToMarkdownParser.parseToMarkdown(htmlContent)
+                    .substringBeforeLast("---------")
+
+                val titleDelimiterIndex = md.indexOf("========")
+                val newMd = if (titleDelimiterIndex > 0) {
+                    val title = md.substring(0, titleDelimiterIndex)
+                        .removeSuffix("\n")
+                        .substringAfterLast("\n") // Just the 1st line before the delimiter
+
+                    (title + "\n" + md.substring(titleDelimiterIndex))
+                } else {
+                    md
+                }
+
+                sitemapUrl.markdownContentPath = writeMarkdown(sitemapUrl.loc, newMd)
+                println("Updated Markdown for ${sitemapUrl.loc}")
+            }
+        }
+    }
 }
+
+private val htmlToMarkdownParser = HtmlToMarkdownParser()
