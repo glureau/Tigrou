@@ -31,6 +31,7 @@ data class SitemapUrl(
     val image: List<SitemapImage> = emptyList(),
 ) {
     var enabled: Boolean = true
+    var htmlContentPath: String? = null
 }
 
 

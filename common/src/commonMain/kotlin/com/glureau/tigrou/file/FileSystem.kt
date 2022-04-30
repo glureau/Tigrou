@@ -13,16 +13,12 @@ private fun Study.study() = appDir() + fileSeparator() + "studies" + fileSeparat
 fun readStudyConf() = readFile(appDir() + fileSeparator() + "study_0.json")
 fun writeStudyConf(content: String) = writeFile(appDir() + fileSeparator() + "study_0.json", content)
 
-private fun Study.links() = study() + fileSeparator() + "links.txt"
-fun Study.readLinks() = readFile(links())
-fun Study.writeLinks(content: String) = writeFile(links(), content)
-
-private fun urlToFile(url: String) = url
-    .substringAfter("http://")
-    .substringAfter("https://")
-    .replace("/", "_")
+private fun urlToFile(url: String) = url.substringAfter("http://").substringAfter("https://").replace("/", "_")
 
 private fun Study.htmlDir() = study() + fileSeparator() + "html"
 fun Study.readHtml(url: String) = readFile(htmlDir() + fileSeparator() + urlToFile(url) + ".html")
-fun Study.writeHtml(url: String, content: String) =
-    writeFile(htmlDir() + fileSeparator() + urlToFile(url) + ".html", content)
+fun Study.writeHtml(url: String, content: String): String {
+    val path = htmlDir() + fileSeparator() + urlToFile(url) + ".html"
+    writeFile(path, content)
+    return path
+}

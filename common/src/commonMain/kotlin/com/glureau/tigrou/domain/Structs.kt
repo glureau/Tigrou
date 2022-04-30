@@ -27,8 +27,6 @@ data class Study(
 data class Site(
     val baseUrl: String,
 ) : Listenable() {
-    var enabled: Boolean = true
-
     var sitemapIndex: SitemapIndex? = null
 
     // If no index only! see [SitemapIndex.urlSets]

@@ -7,6 +7,8 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -45,5 +47,7 @@ fun UrlView(sitemapUrl: SitemapUrl, modifier: Modifier = Modifier) {
         }, Modifier.size(30.dp)) {
             Icon(Icons.Default.Share, null)
         }
+
+        Icon(if (sitemapUrl.htmlContentPath == null) Icons.Default.Search else Icons.Default.Check, null)
     }
 }
