@@ -1,4 +1,4 @@
-package com.glureau.tigrou.ui.ui
+package com.glureau.tigrou.ui.tab_input
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -8,9 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.glureau.tigrou.domain.Site
-import com.glureau.tigrou.ui.Collapsable
-import com.glureau.tigrou.ui.UrlGroupView
-import com.glureau.tigrou.ui.humanUrl
+import com.glureau.tigrou.ui.components.Collapsable
+import com.glureau.tigrou.ui.components.humanUrl
 
 @Composable
 fun SiteView(site: Site) {

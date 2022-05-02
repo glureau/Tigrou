@@ -1,4 +1,4 @@
-package com.glureau.tigrou.ui
+package com.glureau.tigrou.ui.tab_input
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size

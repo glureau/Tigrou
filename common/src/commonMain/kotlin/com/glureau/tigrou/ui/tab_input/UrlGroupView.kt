@@ -1,4 +1,4 @@
-package com.glureau.tigrou.ui
+package com.glureau.tigrou.ui.tab_input
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +18,7 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import com.glureau.tigrou.sitemap.SitemapUrl
 import com.glureau.tigrou.studyRepository
+import com.glureau.tigrou.ui.components.Collapsable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

@@ -17,11 +17,16 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
+                api(compose.ui)
+                api(compose.uiTooling)
+                api(compose.materialIconsExtended)
                 api("io.ktor:ktor-client-core:2.0.1")
                 api("io.ktor:ktor-client-cio:2.0.1")
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
-
+                implementation("com.google.accompanist:accompanist-flowlayout:0.24.7-alpha")
+                implementation("com.google.accompanist:accompanist-pager:0.24.7-alpha")
+                implementation("com.google.accompanist:accompanist-pager-indicators:0.24.7-alpha")
             }
         }
         commonTest {

@@ -1,4 +1,4 @@
-package com.glureau.tigrou.ui
+package com.glureau.tigrou.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row

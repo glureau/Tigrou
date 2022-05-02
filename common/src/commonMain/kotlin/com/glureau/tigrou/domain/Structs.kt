@@ -21,7 +21,18 @@ data class Study(
     //var studyName: String = "study_" + Random.nextInt().toString(32),
     var studyName: String = "study_0",
     val sites: MutableList<Site> = mutableListOf(),
-    val ignoredWords: MutableList<String> = mutableListOf(),
+    val ignoredWords: MutableList<String> = mutableListOf(
+        "un", "une", "le", "la", "les", "au", "du", "a", "de", "des", "aux", "d'un", "d'une",
+        "mais", "ou", "et", "donc", "or", "ni", "car", "y",
+        "son", "sa", "ses", "ton", "ta", "tes", "cet", "cette", "notre",
+        "est", "es", "ai", "dans", "pour", "plus", "en", "faire",
+        "sur", "sous", "dessus", "dessous", "avec", "par",
+        "je", "tu", "il", "elle", "nous", "vous", "ils", "elles",
+        "se", "votre", "sont", "qui", "ce", "que", "c'est", "tout", "ont",
+        "liens", "sites", "charte", "logo", "tél", "contactez-nous", "accueil", "plan", "and", "in", "newsletter",
+        "more", "read", "mailto", "the",
+        "http",
+    ),
 ) : Listenable() {
     fun allSitemapUrl(): List<SitemapUrl> {
         val urls = mutableListOf<SitemapUrl>()
