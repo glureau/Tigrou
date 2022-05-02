@@ -1,5 +1,6 @@
 package com.glureau.tigrou.study
 
+import com.glureau.tigrou.analytics.Analytics
 import com.glureau.tigrou.domain.Study
 import com.glureau.tigrou.domain.UpdateListener
 import com.glureau.tigrou.file.readFile
@@ -64,10 +65,12 @@ class StudyRepository : UpdateListener {
                 SiteScanner().updateSite(it)
             }
 
-            studySitemapUrl().forEach { sitemapUrl: SitemapUrl ->
+            study.allSitemapUrl().forEach { sitemapUrl: SitemapUrl ->
                 study.updateMarkdown(sitemapUrl)
             }
             onUpdate()
+
+            Analytics().wordCount(study)
         }
     }
 
@@ -86,7 +89,7 @@ class StudyRepository : UpdateListener {
 
     fun startDownloadWebPages() =
         coroutineScope.launch {
-            val tasks = studySitemapUrl().filter { it.enabled && it.htmlContentPath == null }
+            val tasks = study.allSitemapUrl().filter { it.enabled && it.htmlContentPath == null }
             val tasksCount = tasks.count()
             _progressFlow.update { 0 to tasksCount }
             tasks.forEachIndexed { index, sitemapUrl ->
@@ -105,21 +108,6 @@ class StudyRepository : UpdateListener {
         }.also {
             it.invokeOnCompletion { _progressFlow.update { 0 to 0 } }
         }
-
-    fun studySitemapUrl(): List<SitemapUrl> {
-        // Using copy to avoid concurrent modifications
-        val urls = mutableListOf<SitemapUrl>()
-        val sitesCopy = study.sites.toList()
-        sitesCopy.forEach { site ->
-            val sitemapsCopy = site.sitemapIndex?.sitemaps?.toList()
-            sitemapsCopy?.forEach { sitemap ->
-                sitemap.urlSet?.urls?.forEach { urls.add(it) }
-            }
-
-            site.sitemapUrlSet?.urls?.forEach { urls.add(it) }
-        }
-        return urls
-    }
 
     suspend fun removeSite(baseUrl: String) {
         study.sites.removeAll { it.baseUrl == baseUrl }
