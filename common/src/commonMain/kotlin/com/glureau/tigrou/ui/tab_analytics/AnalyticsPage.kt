@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -24,7 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,18 +44,34 @@ import androidx.compose.ui.unit.sp
 import com.glureau.tigrou.analytics.Analytics
 import com.glureau.tigrou.domain.Study
 import com.glureau.tigrou.ui.components.simpleVerticalScrollbar
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
 @Composable
 fun AnalyticsPage(study: Study) {
-    if (study.ignoredWords.isEmpty()) {
-        val coroutineScope = rememberCoroutineScope()
-        coroutineScope.launch {
-            study.notifyUpdate()
+    var analyticsInProgress by remember { mutableStateOf(false) }
+    var wordCount by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
+    val coroutineScope = rememberCoroutineScope()
+    LaunchedEffect("init") {
+        coroutineScope.launch(Dispatchers.Default) {
+            wordCount = Analytics().wordCount(study)
+            analyticsInProgress = false
+            if (study.ignoredWords.isEmpty()) {
+                study.notifyUpdate()
+            }
         }
     }
-    val wordCount by remember { derivedStateOf { Analytics().wordCount(study) } }
+
+    // TODO: the isEmpty check is bad, to be reworked
+    if (analyticsInProgress || wordCount.isEmpty()) {
+        Column(Modifier.fillMaxSize()) {
+            Text("Analyse en cours...", Modifier.padding(top = 100.dp).align(Alignment.CenterHorizontally))
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+        }
+        return
+    }
+
     Row(Modifier.padding(4.dp)) {
         Column {
             Text("Mots par occurrences")
@@ -92,22 +109,19 @@ fun AnalyticsPage(study: Study) {
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                         onValueChange = { input ->
                             exportWordCount = input.filter { it in '0'..'9' }.toIntOrNull() ?: 0
-                        }
-                    )
+                        })
                 }
-                val exportedWords = wordCount.filter { (word, _) -> !study.ignoredWords.contains(word) }
-                    .take(exportWordCount)
+                val exportedWords =
+                    wordCount.filter { (word, _) -> !study.ignoredWords.contains(word) }.take(exportWordCount)
                 val firstExportedWordCount = exportedWords.first().second
                 val lastExportedWordCount = exportedWords.last().second
-                val text: String = exportedWords
-                    .map { (word, count) -> word to (((count - lastExportedWordCount) * 100f) / firstExportedWordCount).toInt() }
-                    .flatMap { (word, count) -> List(count) { word } }
-                    .joinToString(" ")
+                val text: String =
+                    exportedWords.map { (word, count) -> word to (((count - lastExportedWordCount) * 100f) / firstExportedWordCount).toInt() }
+                        .flatMap { (word, count) -> List(count) { word } }.joinToString(" ")
                 val clipboard = LocalClipboardManager.current
-                TextField(text, {}, readOnly = true,
-                    modifier = Modifier.fillMaxWidth().height(200.dp).clickable {
-                        clipboard.setText(AnnotatedString(text))
-                    })
+                TextField(text, {}, readOnly = true, modifier = Modifier.fillMaxWidth().height(200.dp).clickable {
+                    clipboard.setText(AnnotatedString(text))
+                })
             }
         }
     }

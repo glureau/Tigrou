@@ -5,7 +5,6 @@ import com.glureau.tigrou.file.readMarkdown
 
 class Analytics {
 
-
     fun wordCount(study: Study): List<Pair<String, Int>> {
         val occurrences = mutableMapOf<String, Int>()
         val urls = study.allSitemapUrl().filter { it.enabled && it.markdownContentPath != null }

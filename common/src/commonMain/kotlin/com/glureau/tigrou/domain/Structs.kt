@@ -31,7 +31,7 @@ data class Study(
         "se", "votre", "sont", "qui", "ce", "que", "c'est", "tout", "ont",
         "liens", "sites", "charte", "logo", "tél", "contactez-nous", "accueil", "plan", "and", "in", "newsletter",
         "more", "read", "mailto", "the",
-        "http",
+        "http", "lien", "site", "article"
     ),
 ) : Listenable() {
     fun allSitemapUrl(): List<SitemapUrl> {

@@ -1,12 +1,10 @@
 package com.glureau.tigrou.study
 
-import com.glureau.tigrou.analytics.Analytics
 import com.glureau.tigrou.domain.Study
 import com.glureau.tigrou.domain.UpdateListener
 import com.glureau.tigrou.file.readFile
 import com.glureau.tigrou.file.readStudyConf
 import com.glureau.tigrou.file.writeHtml
-import com.glureau.tigrou.file.writeMarkdown
 import com.glureau.tigrou.file.writeStudyConf
 import com.glureau.tigrou.htmldownload.HtmlDownloader
 import com.glureau.tigrou.markdown.HtmlToMarkdownParser
@@ -68,9 +66,8 @@ class StudyRepository : UpdateListener {
             study.allSitemapUrl().forEach { sitemapUrl: SitemapUrl ->
                 study.updateMarkdown(sitemapUrl)
             }
-            onUpdate()
 
-            Analytics().wordCount(study)
+            onUpdate()
         }
     }
 
@@ -115,32 +112,26 @@ class StudyRepository : UpdateListener {
     }
 
     private fun Study.updateMarkdown(sitemapUrl: SitemapUrl) {
-        if (sitemapUrl.markdownContentPath != null) return
+        //if (sitemapUrl.markdownContentPath != null) return
         val htmlContentPath = sitemapUrl.htmlContentPath
+        println("htmlContentPath=$htmlContentPath")
         if (htmlContentPath != null) {
             val htmlContent = readFile(htmlContentPath)
             if (htmlContent == null) {
                 sitemapUrl.htmlContentPath = null
             } else {
                 val md = htmlToMarkdownParser.parseToMarkdown(htmlContent)
-                    .substringBeforeLast("---------")
 
-                val titleDelimiterIndex = md.indexOf("========")
-                val newMd = if (titleDelimiterIndex > 0) {
-                    val title = md.substring(0, titleDelimiterIndex)
-                        .removeSuffix("\n")
-                        .substringAfterLast("\n") // Just the 1st line before the delimiter
-
-                    (title + "\n" + md.substring(titleDelimiterIndex))
-                } else {
-                    md
-                }
-
-                sitemapUrl.markdownContentPath = writeMarkdown(sitemapUrl.loc, newMd)
-                println("Updated Markdown for ${sitemapUrl.loc}")
+                val struct = MarkdownStructureInterpretation().parse(md)
+                println("STRUCT: $struct")
+                //sitemapUrl.markdownContentPath = writeMarkdown(sitemapUrl.loc, lines.joinToString("\n"))
+                //println("Updated Markdown for ${sitemapUrl.loc}: ${sitemapUrl.markdownContentPath}")
             }
         }
+        1 / 0
     }
 }
+
+expect fun String.stripAccents(): String
 
 private val htmlToMarkdownParser = HtmlToMarkdownParser()

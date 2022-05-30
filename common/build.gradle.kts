@@ -27,6 +27,8 @@ kotlin {
                 implementation("com.google.accompanist:accompanist-flowlayout:0.24.7-alpha")
                 implementation("com.google.accompanist:accompanist-pager:0.24.7-alpha")
                 implementation("com.google.accompanist:accompanist-pager-indicators:0.24.7-alpha")
+
+                api("com.squareup.sqldelight:coroutines-extensions:1.5.3")
             }
         }
         commonTest {
@@ -37,6 +39,8 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation("io.github.furstenheim:copy_down:1.0")
+                api("com.squareup.sqldelight:runtime-jvm:1.5.3")
+                api("com.squareup.sqldelight:sqlite-driver:1.5.3")
             }
         }
     }
